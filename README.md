@@ -29,7 +29,7 @@ Running on a serverless function, storing data in Firebase (only access_token, r
 
 Click the button below to connect your Trakt account:
 
-[![Connect with Stremio](/img/btn-stremio.svg)](https://spotify-github-profile.kittinanx.com/api/login)
+[![Connect with Stremio](/img/btn-stremio.svg)](https://stremio.mianmuhammad.dev/api/login)
 
 After authorizing, you'll receive your **uid** (your Trakt username).
 
@@ -38,7 +38,7 @@ After authorizing, you'll receive your **uid** (your Trakt username).
 Add this to your GitHub profile README (replace `YOUR_TRAKT_USERNAME` with your uid):
 
 ```markdown
-![stremio-now-playing](https://spotify-github-profile.kittinanx.com/api/view?uid=YOUR_TRAKT_USERNAME&show_offline=true)
+![stremio-now-playing](https://stremio.mianmuhammad.dev/api/view?uid=YOUR_TRAKT_USERNAME&show_offline=true)
 ```
 
 ## Example
