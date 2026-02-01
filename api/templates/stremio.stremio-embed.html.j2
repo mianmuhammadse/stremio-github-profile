@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="400" height="{{ height|default(140) }}" viewBox="0 0 400 {{ height|default(140) }}">
+  <defs>
+    <!-- Background gradient -->
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a0a2e"/>
+      <stop offset="50%" style="stop-color:#16213e"/>
+      <stop offset="100%" style="stop-color:#0f0f1a"/>
+    </linearGradient>
+    
+    <!-- Progress bar gradient -->
+    <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#8a5dc0"/>
+      <stop offset="100%" style="stop-color:#be7eff"/>
+    </linearGradient>
+    
+    <!-- Glow filter -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <!-- Clip path for poster -->
+    <clipPath id="posterClip">
+      <rect x="16" y="16" width="88" height="88" rx="8"/>
+    </clipPath>
+  </defs>
+  
+  <style>
+    .container { fill: url(#bgGradient); }
+    .poster-bg { fill: #2a1a4a; }
+    .title { font: bold 15px 'Segoe UI', Ubuntu, Sans-Serif; fill: #fff; }
+    .subtitle { font: 12px 'Segoe UI', Ubuntu, Sans-Serif; fill: #b3b3b3; }
+    .meta { font: 11px 'Segoe UI', Ubuntu, Sans-Serif; fill: #8a8a8a; }
+    .time { font: 10px 'Segoe UI', Ubuntu, Sans-Serif; fill: #b3b3b3; }
+    .progress-bg { fill: rgba(255,255,255,0.1); }
+    .progress-fill { fill: url(#progressGradient); }
+    .recents-title { font: bold 10px 'Segoe UI', Ubuntu, Sans-Serif; fill: #8a5dc0; text-transform: uppercase; letter-spacing: 1px; }
+    .recent-title { font: 10px 'Segoe UI', Ubuntu, Sans-Serif; fill: #fff; }
+    .recent-subtitle { font: 9px 'Segoe UI', Ubuntu, Sans-Serif; fill: #8a8a8a; }
+  </style>
+  
+  <!-- Main container with rounded corners -->
+  <rect class="container" x="0" y="0" width="400" height="{{ height|default(140) }}" rx="12"/>
+  
+  <!-- Subtle border -->
+  <rect x="0.5" y="0.5" width="399" height="{{ (height|default(140)) - 1 }}" rx="12" fill="none" stroke="rgba(138,93,192,0.3)" stroke-width="1"/>
+  
+  {% if is_now_playing %}
+  <!-- Poster -->
+  <rect class="poster-bg" x="16" y="16" width="88" height="88" rx="8"/>
+  {% if img %}
+  <image clip-path="url(#posterClip)" x="16" y="16" width="88" height="88" xlink:href="data:image/png;base64,{{ img }}" preserveAspectRatio="xMidYMid slice"/>
+  {% else %}
+  <!-- Default movie icon -->
+  <g transform="translate(40, 40)">
+    <rect x="0" y="0" width="40" height="40" rx="6" fill="#3a2a5a"/>
+    <path d="M12 10v20l16-10z" fill="#8a5dc0"/>
+  </g>
+  {% endif %}
+  
+  <!-- Content area -->
+  <g transform="translate(120, 28)">
+    <!-- Title (movie/episode name) -->
+    <text class="title" x="0" y="14">{{ title }}</text>
+    
+    <!-- Subtitle (show name, year, genres, runtime) -->
+    <text class="subtitle" x="0" y="36">{{ subtitle }}</text>
+    
+    <!-- Meta info -->
+    {% if meta_info %}
+    <text class="meta" x="0" y="56">{{ meta_info }}</text>
+    {% endif %}
+  </g>
+  
+  <!-- Progress bar section -->
+  <g transform="translate(16, 112)">
+    <!-- Time labels -->
+    <text class="time" x="0" y="10">{{ progress_data.elapsed_time|default('0:00') }}</text>
+    <text class="time" x="368" y="10" text-anchor="end">{{ progress_data.remaining_time|default('-0:00') }}</text>
+    
+    <!-- Progress bar background -->
+    <rect class="progress-bg" x="0" y="18" width="368" height="4" rx="2"/>
+    
+    <!-- Progress bar fill -->
+    <rect class="progress-fill" x="0" y="18" width="{{ (progress_data.progress|default(0) / 100 * 368)|int }}" height="4" rx="2"/>
+    
+    <!-- Scrubber dot -->
+    <circle cx="{{ (progress_data.progress|default(0) / 100 * 368)|int }}" cy="20" r="5" fill="#fff" filter="url(#glow)"/>
+  </g>
+
+  {% else %}
+  <!-- Not watching state -->
+  <g transform="translate(200, 70)" text-anchor="middle">
+    <!-- Stremio play icon -->
+    <g transform="translate(-20, -35)">
+      <rect x="0" y="0" width="40" height="40" rx="8" fill="rgba(138,93,192,0.2)"/>
+      <path d="M14 10v20l14-10z" fill="#8a5dc0"/>
+    </g>
+    <text class="subtitle" x="0" y="20">Not watching anything</text>
+    <text class="meta" x="0" y="38">Start playing on Stremio to update</text>
+  </g>
+  {% endif %}
+
+  {% if recents and recents|length > 0 %}
+  <!-- Recently Watched Section -->
+  <g transform="translate(16, 150)">
+    <!-- Section title -->
+    <text class="recents-title" x="0" y="12">📺 Recently Watched</text>
+    
+    <!-- Horizontal list of recent items -->
+    {% for item in recents %}
+    <g transform="translate(0, {{ 22 + loop.index0 * 48 }})">
+      <!-- Poster thumbnail -->
+      <rect x="0" y="0" width="28" height="42" rx="4" fill="#2a1a4a"/>
+      {% if item.poster_url %}
+      <image x="0" y="0" width="28" height="42" xlink:href="{{ item.poster_url }}" preserveAspectRatio="xMidYMid slice" clip-path="inset(0 round 4px)"/>
+      {% endif %}
+      
+      <!-- Title and info -->
+      <text class="recent-title" x="36" y="16">{{ item.title[:35] }}{% if item.title|length > 35 %}...{% endif %}</text>
+      <text class="recent-subtitle" x="36" y="32">{{ item.info[:40] }}{% if item.info|length > 40 %}...{% endif %}</text>
+    </g>
+    {% endfor %}
+  </g>
+  {% endif %}
+</svg>

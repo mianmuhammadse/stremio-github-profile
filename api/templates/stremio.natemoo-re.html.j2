@@ -1,0 +1,210 @@
+<svg width="400" height="{{height}}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-labelledby="cardTitle" role="img">
+  <title id="cardTitle">Now watching on Stremio</title>
+  <foreignObject width="400" height="{{height}}">
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      .container {
+        font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        padding: 12px;
+        background-color: #{{background_color}};
+        border-radius: 8px;
+        gap: 12px;
+      }
+
+      .cover {
+        width: 60px;
+        height: 60px;
+        border-radius: 4px;
+        flex-shrink: 0;
+        object-fit: cover;
+      }
+
+      .info {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+      }
+
+      .status {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #7b5bf5;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+      }
+
+      .logo {
+        width: 16px;
+        height: 16px;
+      }
+
+      .title {
+        color: #fff;
+        font-size: 14px;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 2px;
+      }
+
+      .subtitle {
+        color: #b3b3b3;
+        font-size: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .not-play {
+        color: #888888;
+        font-size: 14px;
+        text-align: center;
+        width: 100%;
+      }
+
+      .bars {
+        display: flex;
+        align-items: flex-end;
+        gap: 2px;
+        height: 16px;
+      }
+
+      .bar {
+        width: 3px;
+        background: #7b5bf5;
+        border-radius: 1px;
+        animation: bounce 1s ease-in-out infinite;
+      }
+
+      .bar:nth-child(1) { height: 8px; animation-delay: 0s; }
+      .bar:nth-child(2) { height: 12px; animation-delay: 0.1s; }
+      .bar:nth-child(3) { height: 6px; animation-delay: 0.2s; }
+      .bar:nth-child(4) { height: 14px; animation-delay: 0.3s; }
+
+      @keyframes bounce {
+        0%, 100% { transform: scaleY(0.5); }
+        50% { transform: scaleY(1); }
+      }
+
+      /* Recently watched section */
+      .recents-section {
+        width: 100%;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid rgba(123, 91, 245, 0.2);
+      }
+
+      .recents-title {
+        color: #7b5bf5;
+        font-size: 9px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+      }
+
+      .recent-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 0;
+      }
+
+      .recent-poster {
+        width: 20px;
+        height: 30px;
+        border-radius: 2px;
+        object-fit: cover;
+        background: rgba(123, 91, 245, 0.2);
+        flex-shrink: 0;
+      }
+
+      .recent-info {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+      }
+
+      .recent-title {
+        color: #fff;
+        font-size: 10px;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .recent-subtitle {
+        color: #888;
+        font-size: 9px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    </style>
+    <div xmlns="http://www.w3.org/1999/xhtml" class="container">
+      {% if media_title %}
+        {% if cover_image %}
+          <img src="data:image/png;base64, {{img}}" class="cover" />
+        {% endif %}
+        <div class="info">
+          <div class="status">
+            <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="stremioGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#7b5bf5;stop-opacity:1" />
+                  <stop offset="100%" style="stop-color:#5a3fd4;stop-opacity:1" />
+                </linearGradient>
+              </defs>
+              <rect x="5" y="5" width="90" height="90" rx="15" fill="url(#stremioGrad)"/>
+              <polygon points="38,25 38,75 78,50" fill="white"/>
+            </svg>
+            Now watching
+            <div class="bars">
+              <div class="bar"></div>
+              <div class="bar"></div>
+              <div class="bar"></div>
+              <div class="bar"></div>
+            </div>
+          </div>
+          <div class="title">{{media_info|safe}}</div>
+          <div class="subtitle">{{media_title|safe}}</div>
+        </div>
+      {% else %}
+        <div class="not-play">Nothing playing on Stremio</div>
+      {% endif %}
+
+      {% if recents and recents|length > 0 %}
+      <div class="recents-section">
+        <div class="recents-title">📺 Recently Watched</div>
+        {% for item in recents %}
+        <div class="recent-item">
+          {% if item.poster_url %}
+          <img class="recent-poster" src="{{item.poster_url}}" alt=""/>
+          {% else %}
+          <div class="recent-poster"></div>
+          {% endif %}
+          <div class="recent-info">
+            <div class="recent-title">{{item.title}}</div>
+            <div class="recent-subtitle">{{item.info}}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </foreignObject>
+</svg>

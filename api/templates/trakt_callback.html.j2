@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0" />
+  <title>stremio-github-profile</title>
+
+  <!-- CSS  -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+  <style>
+    .purple-stremio {
+      background-color: #8a5dc0 !important;
+    }
+
+    @media only screen and (max-width: 992px) {
+      nav .brand-logo {
+        width: 100%;
+        text-align: center;
+      }
+    }
+
+    .page-footer {
+      padding-top: 0;
+    }
+
+    .page-footer .footer-copyright {
+      padding: 20px 0 16px;
+    }
+
+    .footer-content {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .footer-content > i {
+      margin: 0 5px;
+    }
+
+    {# sticky footer #}
+    body {
+      display: flex;
+      min-height: 100vh;
+      flex-direction: column;
+    }
+
+    .section.no-pad-bot {
+      flex: 1 0 auto;
+    }
+  </style>
+
+</head>
+
+<body class="">
+  <nav class="purple-stremio" role="navigation">
+    <div class="nav-wrapper container"><a id="logo-container" href="#" class="brand-logo">stremio-github-profile</a>
+      <ul class="right hide-on-med-and-down">
+        <li><a href="https://github.com/kittinan/spotify-github-profile" target="_BLANK">Github</a></li>
+      </ul>
+
+      <ul id="nav-mobile" class="sidenav">
+        <li><a href="https://github.com/kittinan/spotify-github-profile" target="_BLANK">Github</a></li>
+      </ul>
+    </div>
+  </nav>
+  <div class="section no-pad-bot" id="index-banner">
+    <div class="container">
+      <br><br>
+      <div class="row center">
+        <h2 class="header center purple-text">Stremio Now Playing</h2>
+        <p>Your Trakt username: <strong>{{uid}}</strong></p>
+      </div>
+
+      <div class="row center">
+        <h4 class="header center orange-text">Markdown Code</h4>
+      </div>
+
+      <!-- Theme Selection -->
+      <div class="row center">
+        <div class="input-field col s12 m6 offset-m3">
+          <select id="theme-select">
+            <option value="default" selected>Default</option>
+            <option value="compact">Compact</option>
+            <option value="natemoo-re">Natemoo-re</option>
+            <option value="novatorem">Novatorem</option>
+            <option value="karaoke">Karaoke</option>
+            <option value="apple">Apple</option>
+            <option value="stremio-embed">Stremio Embed</option>
+          </select>
+          <label>Choose Theme</label>
+        </div>
+      </div>
+
+      <!-- Display Options -->
+      <div class="row center">
+        <h5 class="grey-text text-darken-1">Display Options</h5>
+      </div>
+      <div class="row center">
+        <div class="col s6 m3">
+          <label>
+            <input type="checkbox" class="filled-in" checked="checked" id="cover-image-checkbox" />
+            <span>Show Poster</span>
+          </label>
+        </div>
+        <div class="col s6 m3">
+          <label>
+            <input type="checkbox" class="filled-in" checked="checked" id="show-offline-checkbox" />
+            <span>Show Offline State</span>
+          </label>
+        </div>
+        <div class="col s6 m3">
+          <label>
+            <input type="checkbox" class="filled-in" id="interchange" />
+            <span>Swap Title/Info</span>
+          </label>
+        </div>
+        <div class="col s6 m3">
+          <label>
+            <input type="checkbox" class="filled-in" id="profanity-checkbox" />
+            <span>Profanity Filter</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Recently Watched -->
+      <div class="row center" style="margin-top: 20px;">
+        <h5 class="grey-text text-darken-1">Recently Watched</h5>
+      </div>
+      <div class="row center">
+        <div class="col s12 m4 offset-m2">
+          <label>
+            <input type="checkbox" class="filled-in" id="show_recents" />
+            <span>Show Recent History</span>
+          </label>
+        </div>
+        <div class="col s12 m4" id="recents-limit-row" style="display: none;">
+          <div class="input-field" style="margin-top: 0;">
+            <select id="recents_limit">
+              <option value="3">3 items</option>
+              <option value="5" selected>5 items</option>
+              <option value="7">7 items</option>
+              <option value="10">10 items</option>
+            </select>
+            <label>Number of items</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Color Options -->
+      <div class="row center bar-color" style="margin-top: 20px;">
+        <h5 class="grey-text text-darken-1">Colors</h5>
+      </div>
+      <div class="row center bar-color">
+        <div class="col s12 m3 offset-m1">
+          <label>
+            <span>Bar Color</span><br>
+            <input type="color" id="bar_color" name="bar_color" value="#8a5dc0" style="width: 60px; height: 40px; cursor: pointer;">
+          </label>
+        </div>
+        <div class="col s12 m3">
+          <label>
+            <span>Background Color</span><br>
+            <input type="color" id="background_color" name="background_color" value="#121212" style="width: 60px; height: 40px; cursor: pointer;">
+          </label>
+        </div>
+        <div class="col s12 m4">
+          <label style="margin-top: 15px; display: inline-block;">
+            <input type="checkbox" class="filled-in" id="bar_color_cover" />
+            <span>Auto color from poster</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Mode Selection (for Apple/Stremio-embed themes) -->
+      <div class="row center" id="mode-row" style="display: none; margin-top: 20px;">
+        <div class="input-field col s12 m4 offset-m4">
+          <select id="mode-select">
+            <option value="light" selected>Light Mode</option>
+            <option value="dark">Dark Mode</option>
+          </select>
+          <label>Appearance</label>
+        </div>
+      </div>
+
+      <div class="row center">
+        <div class="col s0 m1"></div>
+        <div class="col s12 m10">
+          <textarea id="markdown-code" style="width: 100%;height: 100px; padding: 10px;"></textarea>
+        </div>
+        <div class="col s0 m1"></div>
+      </div>
+
+      <div class="row center">
+        <div style="margin-top: 20px; margin-bottom: 20px;">
+          <button class="waves-effect waves-light btn purple darken-1" data-clipboard-target="#markdown-code">
+            <i class="material-icons left">content_copy</i> Copy to clipboard
+          </button>
+        </div>
+      </div>
+
+      <div class="row center">
+        <img id="example-view" />
+      </div>
+
+      <div class="row center">
+        <h4 class="header center orange-text">HTML Code</h4>
+      </div>
+
+      <div class="row center">
+        <div class="col s0 m1"></div>
+        <div class="col s12 m10">
+          <textarea id="html-code" style="width: 100%;height: 100px; padding: 10px;"></textarea>
+        </div>
+        <div class="col s0 m1"></div>
+      </div>
+
+      <div class="row center">
+        <div style="margin-top: 20px; margin-bottom: 20px;">
+          <button class="waves-effect waves-light btn purple darken-1" data-clipboard-target="#html-code">
+            <i class="material-icons left">content_copy</i> Copy to clipboard
+          </button>
+        </div>
+      </div>
+
+      <br><br>
+
+    </div>
+  </div>
+
+  <footer class="page-footer purple-stremio">
+    <div class="footer-copyright">
+      <div class="container center footer-content">
+        <span>Made with</span>
+        <i class="material-icons red-text">favorite</i>
+        <span>
+          by
+          <a class="grey-text text-darken-4"
+            href="https://github.com/kittinan/spotify-github-profile"
+            target="_BLANK">
+            stremio-github-profile
+          </a>
+        </span>
+      </div>
+    </div>
+  </footer>
+
+
+  <!--  Scripts-->
+  <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js"></script>
+
+  <script>
+    var uid = "{{uid}}";
+    var markdownCodeTextArea = $('#markdown-code');
+    var htmlCodeTextArea = $('#html-code');
+    var exampleView = $("#example-view");
+    var urlParams = {
+      uid: uid,
+      source: 'stremio',
+      cover_image: true,
+      theme: 'default',
+      show_offline: true,
+      background_color: "121212",
+      interchange: false,
+      bar_color: "8a5dc0"
+    };
+
+    function updateUrl() {
+      var viewUrl = `{{BASE_URL}}/view?`;
+      var viewUrlWithParams = viewUrl + $.param(urlParams, true);
+      var url = "https://github.com/kittinan/spotify-github-profile";
+
+      exampleView.attr('src', viewUrlWithParams);
+      markdownCodeTextArea.text(`[![stremio-github-profile](${viewUrlWithParams})](${url})`);
+      
+      // Generate HTML code
+      var htmlCode = `<p align="center">
+  <a href="${url}">
+    <img src="${viewUrlWithParams}">
+  </a>
+</p>`;
+      htmlCodeTextArea.text(htmlCode);
+    }
+
+    updateUrl();
+
+    $("#cover-image-checkbox").change(function() {
+      urlParams.cover_image = this.checked;
+      updateUrl();
+    });
+
+    $("#interchange").change(function() {
+      urlParams.interchange = this.checked;
+      updateUrl();
+    });
+
+    $("#show-offline-checkbox").change(function() {
+      urlParams.show_offline = this.checked;
+      updateUrl();
+    });
+
+    $('#theme-select').change(function() {
+      // Reset visibility defaults
+      $('.bar-color').show();
+      $('#mode-row').hide();
+
+      // Trigger color inputs to keep in sync when visible
+      $('#bar_color').trigger('change');
+      $('#bar_color_cover').trigger('change');
+
+      // Hide bar-color controls for themes that don't use them
+      if (['compact', 'karaoke', 'apple'].includes(this.value)) {
+        $('.bar-color').hide();
+        delete urlParams.bar_color_cover;
+        delete urlParams.bar_color;
+      }
+
+      // Manage Apple-specific mode selector and param
+      if (this.value === 'apple' || this.value === 'stremio-embed') {
+        $('#mode-row').show();
+        urlParams.mode = $('#mode-select').val();
+      } else {
+        delete urlParams.mode;
+      }
+
+      urlParams.theme = this.value;
+      updateUrl();
+    });
+
+    $('#bar_color').change(function() {
+      urlParams.bar_color = this.value.substring(1);
+      updateUrl();
+    });
+
+    $('#background_color').change(function() {
+      urlParams.background_color = this.value.substring(1);
+      updateUrl();
+    });
+
+    $('#bar_color_cover').change(function() {
+      urlParams.bar_color_cover = this.checked;
+      updateUrl();
+    });
+
+    $('#show_recents').change(function() {
+      if (this.checked) {
+        urlParams.show_recents = true;
+        urlParams.recents_limit = $('#recents_limit').val();
+        $('#recents-limit-row').show();
+        // Reinitialize Materialize select after showing
+        $('#recents_limit').formSelect();
+      } else {
+        delete urlParams.show_recents;
+        delete urlParams.recents_limit;
+        $('#recents-limit-row').hide();
+      }
+      updateUrl();
+    });
+
+    $('#recents_limit').change(function() {
+      if ($('#show_recents').is(':checked')) {
+        urlParams.recents_limit = this.value;
+        updateUrl();
+      }
+    });
+
+    $('#mode-select').change(function() {
+      var themeSelected = $('#theme-select').val();
+      if (themeSelected === 'apple' || themeSelected === 'stremio-embed') {
+        urlParams.mode = this.value;
+      } else {
+        delete urlParams.mode;
+      }
+      updateUrl();
+    });
+
+    $('#profanity-checkbox').change(function() {
+      if (this.checked) {
+        urlParams.profanity = true;
+      } else {
+        delete urlParams.profanity;
+      }
+      updateUrl();
+    });
+ 
+    $(document).ready(function(){
+      // Initialize all Materialize selects
+      $('select').formSelect();
+      
+      // Set initial state based on checkboxes
+      if ($('#show_recents').is(':checked')) {
+        $('#recents-limit-row').show();
+      }
+    });
+  </script>
+
+  <script>
+    var clipboard = new ClipboardJS('.btn');
+    clipboard.on('success', function (e) {
+      M.toast({
+        html: 'Copied!'
+      })
+
+      e.clearSelection();
+    });
+  </script>
+
+</body>
+
+</html>

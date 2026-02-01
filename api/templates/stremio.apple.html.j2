@@ -1,0 +1,260 @@
+<svg width="320" height="{{height}}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-labelledby="cardTitle" role="img">
+  <title id="cardTitle">Now watching on Stremio</title>
+  <foreignObject width="320" height="{{height}}">
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      .container {
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', Helvetica, Arial, sans-serif;
+        background: linear-gradient(180deg, #1c1c1e 0%, #000000 100%);
+        border-radius: 12px;
+        padding: 16px;
+        height: 100%;
+      }
+
+      .cover-container {
+        position: relative;
+        width: 288px;
+        height: 432px;
+        margin: 0 auto 16px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      }
+
+      .cover {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .info {
+        text-align: center;
+      }
+
+      .title {
+        color: #ffffff;
+        font-size: 17px;
+        font-weight: 600;
+        margin-bottom: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .subtitle {
+        color: #8e8e93;
+        font-size: 15px;
+        margin-bottom: 16px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 32px;
+        margin-bottom: 16px;
+      }
+
+      .control-btn {
+        color: #ffffff;
+        opacity: 0.8;
+      }
+
+      .play-btn {
+        width: 56px;
+        height: 56px;
+        background: #7b5bf5;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .progress-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .progress-bar {
+        flex: 1;
+        height: 4px;
+        background: #3a3a3c;
+        border-radius: 2px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: #7b5bf5;
+        width: {{progress_data.progress_percentage|default(0)}}%;
+        border-radius: 2px;
+      }
+
+      .time {
+        color: #8e8e93;
+        font-size: 11px;
+        min-width: 35px;
+      }
+
+      .status {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        color: #7b5bf5;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 12px;
+      }
+
+      .logo {
+        width: 16px;
+        height: 16px;
+      }
+
+      .not-play {
+        color: #8e8e93;
+        font-size: 15px;
+        text-align: center;
+        padding: 40px 0;
+      }
+
+      /* Recently watched section */
+      .recents-section {
+        margin-top: 16px;
+        padding-top: 12px;
+        border-top: 1px solid rgba(123, 91, 245, 0.2);
+      }
+
+      .recents-title {
+        color: #7b5bf5;
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+        text-align: center;
+      }
+
+      .recent-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 0;
+      }
+
+      .recent-poster {
+        width: 28px;
+        height: 42px;
+        border-radius: 4px;
+        object-fit: cover;
+        background: rgba(123, 91, 245, 0.2);
+        flex-shrink: 0;
+      }
+
+      .recent-info {
+        flex: 1;
+        overflow: hidden;
+      }
+
+      .recent-title {
+        color: #fff;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .recent-subtitle {
+        color: #8e8e93;
+        font-size: 11px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    </style>
+    <div xmlns="http://www.w3.org/1999/xhtml" class="container">
+      {% if media_title %}
+        <div class="status">
+          <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="stremioGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#7b5bf5;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#5a3fd4;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            <rect x="5" y="5" width="90" height="90" rx="15" fill="url(#stremioGrad)"/>
+            <polygon points="38,25 38,75 78,50" fill="white"/>
+          </svg>
+          Now watching on Stremio
+        </div>
+
+        {% if cover_image %}
+        <div class="cover-container">
+          <img src="data:image/png;base64, {{img}}" class="cover" />
+        </div>
+        {% endif %}
+
+        <div class="info">
+          <div class="title">{{media_info|safe}}</div>
+          <div class="subtitle">{{media_title|safe}}</div>
+        </div>
+
+        <div class="controls">
+          <svg class="control-btn" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M6 6h2v12H6V6zm3.5 6l8.5 6V6l-8.5 6z"/>
+          </svg>
+          <div class="play-btn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+          </div>
+          <svg class="control-btn" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+          </svg>
+        </div>
+
+        <div class="progress-container">
+          <span class="time">{{progress_data.current_time|default('0:00')}}</span>
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
+          </div>
+          <span class="time">{{progress_data.remaining_time|default('-0:00')}}</span>
+        </div>
+      {% else %}
+        <div class="not-play">Nothing playing on Stremio</div>
+      {% endif %}
+
+      {% if recents and recents|length > 0 %}
+      <div class="recents-section">
+        <div class="recents-title">📺 Recently Watched</div>
+        {% for item in recents %}
+        <div class="recent-item">
+          {% if item.poster_url %}
+          <img class="recent-poster" src="{{item.poster_url}}" alt=""/>
+          {% else %}
+          <div class="recent-poster"></div>
+          {% endif %}
+          <div class="recent-info">
+            <div class="recent-title">{{item.title}}</div>
+            <div class="recent-subtitle">{{item.info}}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </foreignObject>
+</svg>
