@@ -137,7 +137,7 @@ pytest tests/ --cov=api --cov-report=html
 ## How to Contribute
 
 - Fork the repo and submit a pull request
-- Report bugs on the [Issues](https://github.com/kittinan/spotify-github-profile/issues) page
+- Report bugs on the [Issues](https://github.com/mianmuhammadse/stremio-github-profile.git/issues) page
 - Suggest features with the label [Feature Suggestion]
 
 ## Credit
