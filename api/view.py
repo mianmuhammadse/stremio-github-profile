@@ -422,10 +422,20 @@ def get_watch_history(uid, limit=5):
         else:
             continue
         
+        # Convert poster URL to base64 for embedding in SVG
+        poster_b64 = None
+        if poster_url:
+            try:
+                poster_b64 = load_image_b64(poster_url)
+            except Exception as e:
+                print(f"Error loading recent poster: {e}")
+                poster_b64 = None
+        
         processed_history.append({
             "title": title,
             "info": info,
             "poster_url": poster_url,
+            "poster_b64": poster_b64,
             "type": item_type,
             "watched_at": watched_at,
         })

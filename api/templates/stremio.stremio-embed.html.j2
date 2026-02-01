@@ -108,15 +108,15 @@
   <!-- Recently Watched Section -->
   <g transform="translate(16, 150)">
     <!-- Section title -->
-    <text class="recents-title" x="0" y="12">📺 Recently Watched</text>
+    <text class="recents-title" x="0" y="12">Recently Watched</text>
     
     <!-- Horizontal list of recent items -->
     {% for item in recents %}
     <g transform="translate(0, {{ 22 + loop.index0 * 48 }})">
       <!-- Poster thumbnail -->
       <rect x="0" y="0" width="28" height="42" rx="4" fill="#2a1a4a"/>
-      {% if item.poster_url %}
-      <image x="0" y="0" width="28" height="42" xlink:href="{{ item.poster_url }}" preserveAspectRatio="xMidYMid slice" clip-path="inset(0 round 4px)"/>
+      {% if item.poster_b64 %}
+      <image x="0" y="0" width="28" height="42" xlink:href="data:image/jpeg;base64,{{ item.poster_b64 }}" preserveAspectRatio="xMidYMid slice" clip-path="inset(0 round 4px)"/>
       {% endif %}
       
       <!-- Title and info -->

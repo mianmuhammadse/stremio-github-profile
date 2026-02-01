@@ -138,11 +138,11 @@
 
       {% if recents and recents|length > 0 %}
       <div class="recents-section">
-        <div class="recents-title">📺 Recently Watched</div>
+        <div class="recents-title">Recently Watched</div>
         {% for item in recents %}
         <div class="recent-item">
-          {% if item.poster_url %}
-          <img class="recent-poster" src="{{item.poster_url}}" alt=""/>
+          {% if item.poster_b64 %}
+          <img class="recent-poster" src="data:image/jpeg;base64,{{item.poster_b64}}" alt=""/>
           {% else %}
           <div class="recent-poster"></div>
           {% endif %}
