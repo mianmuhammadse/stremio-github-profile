@@ -1,15 +1,11 @@
 from flask import Flask, redirect
-import importlib
 
-# Import handlers (order matters for Firebase init)
-view_module = importlib.import_module("view")
-trakt_login_module = importlib.import_module("trakt_login")
-trakt_callback_module = importlib.import_module("trakt_callback")
+# Import handlers directly (works with Gunicorn)
+from api.view import catch_all as view_handler
+from api.trakt_login import catch_all as trakt_login_handler
+from api.trakt_callback import catch_all as trakt_callback_handler
 
-view_handler = view_module.catch_all
 view_svg_handler = view_handler  # view.svg.py is identical to view.py
-trakt_login_handler = trakt_login_module.catch_all
-trakt_callback_handler = trakt_callback_module.catch_all
 
 app = Flask(__name__)
 
