@@ -56,11 +56,23 @@ Add this to your GitHub profile README (replace `YOUR_TRAKT_USERNAME` with your 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
 | `uid` | (required) | Your Trakt username |
-| `theme` | `default` | Card theme: `default`, `compact`, `natemoo-re`, `novatorem` |
+| `theme` | `default` | Card theme: `default`, `stremio-embed`, `compact`, `natemoo-re`, `novatorem`, `karaoke`, `apple` |
 | `show_offline` | `false` | Show "Offline" card when nothing is playing |
 | `cover_image` | `true` | Display poster/cover image |
 | `background_color` | `121212` | Background color (hex, no #) |
 | `bar_color` | `53b14f` | Animation bar color (hex, no #) |
+| `show_recents` | `false` | Show recently watched items below currently playing |
+| `recents_count` | `3` | Number of recent items to show (1-10) |
+
+## Recently Watched Feature
+
+Show your watch history alongside the currently playing card:
+
+```markdown
+![stremio-now-playing](https://stremio.mianmuhammad.dev/api/view?uid=YOUR_TRAKT_USERNAME&show_offline=true&show_recents=true&recents_count=5)
+```
+
+This displays up to 10 recently watched movies and TV episodes below your currently playing content.
 
 ## Running Locally
 
@@ -137,7 +149,7 @@ pytest tests/ --cov=api --cov-report=html
 ## How to Contribute
 
 - Fork the repo and submit a pull request
-- Report bugs on the [Issues](https://github.com/mianmuhammadse/stremio-github-profile.git/issues) page
+- Report bugs on the [Issues](https://github.com/mianmuhammadse/stremio-github-profile/issues) page
 - Suggest features with the label [Feature Suggestion]
 
 ## Credit
