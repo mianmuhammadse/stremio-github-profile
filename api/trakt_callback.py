@@ -21,30 +21,34 @@ def catch_all(path):
     if code is None:
         return Response("not ok")
 
-    token_info = trakt.generate_token(code)
-    access_token = token_info.get("access_token")
+    try:
+        token_info = trakt.generate_token(code)
+        access_token = token_info.get("access_token")
 
-    # Get trakt user info to extract a stable uid
-    trakt_user = trakt.get_user_profile(access_token)
-    # Trakt returns 'username' for the user's handle
-    user_id = trakt_user.get("username") or trakt_user.get("id")
+        # Get trakt user info to extract a stable uid
+        trakt_user = trakt.get_user_profile(access_token)
+        # Trakt returns 'username' for the user's handle
+        user_id = trakt_user.get("username") or trakt_user.get("id")
 
-    # Store token_info in Firestore similar to Spotify flow
-    doc_ref = db.collection("users").document(user_id)
-    # Add an expiry timestamp if expires_in present
-    if token_info.get("expires_in"):
-        from time import time
+        # Store token_info in Firestore similar to Spotify flow
+        doc_ref = db.collection("users").document(user_id)
+        # Add an expiry timestamp if expires_in present
+        if token_info.get("expires_in"):
+            from time import time
 
-        token_info["expired_ts"] = int(time()) + int(token_info["expires_in"])
+            token_info["expired_ts"] = int(time()) + int(token_info["expires_in"])
 
-    doc_ref.set(token_info)
+        doc_ref.set(token_info)
 
-    rendered_data = {
-        "uid": user_id,
-        "BASE_URL": trakt.BASE_URL,
-    }
+        rendered_data = {
+            "uid": user_id,
+            "BASE_URL": trakt.BASE_URL,
+        }
 
-    return render_template("trakt_callback.html.j2", **rendered_data)
+        return render_template("trakt_callback.html.j2", **rendered_data)
+    except Exception as e:
+        print(f"Error in Trakt callback: {e}")
+        return Response("error processing trakt callback", status=400)
 
 
 if __name__ == "__main__":

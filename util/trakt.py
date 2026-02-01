@@ -29,6 +29,7 @@ def generate_token(authorization_code):
     }
 
     response = requests.post(TRAKT_TOKEN_URL, json=data)
+    response.raise_for_status()
     return response.json()
 
 
@@ -42,6 +43,7 @@ def refresh_token(refresh_token):
     }
 
     response = requests.post(TRAKT_TOKEN_URL, json=data)
+    response.raise_for_status()
     return response.json()
 
 
@@ -53,6 +55,7 @@ def get_user_profile(access_token):
     }
 
     url = f"{TRAKT_API_BASE}/users/me"
+    response.raise_for_status()
     response = requests.get(url, headers=headers)
     return response.json()
 
