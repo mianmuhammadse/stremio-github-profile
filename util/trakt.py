@@ -55,8 +55,8 @@ def get_user_profile(access_token):
     }
 
     url = f"{TRAKT_API_BASE}/users/me"
-    response.raise_for_status()
     response = requests.get(url, headers=headers)
+    response.raise_for_status()
     return response.json()
 
 

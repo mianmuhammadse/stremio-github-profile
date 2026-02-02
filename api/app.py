@@ -1,9 +1,14 @@
 from flask import Flask, redirect
 
-# Import handlers directly (works with Gunicorn)
-from api.view import catch_all as view_handler
-from api.trakt_login import catch_all as trakt_login_handler
-from api.trakt_callback import catch_all as trakt_callback_handler
+# Import handlers - try both import styles to work locally and in production
+try:
+    from api.view import catch_all as view_handler
+    from api.trakt_login import catch_all as trakt_login_handler
+    from api.trakt_callback import catch_all as trakt_callback_handler
+except ModuleNotFoundError:
+    from view import catch_all as view_handler
+    from trakt_login import catch_all as trakt_login_handler
+    from trakt_callback import catch_all as trakt_callback_handler
 
 view_svg_handler = view_handler  # view.svg.py is identical to view.py
 
