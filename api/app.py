@@ -3,10 +3,12 @@ from flask import Flask, redirect
 # Import handlers - try both import styles to work locally and in production
 try:
     from api.view import catch_all as view_handler
+    from api.view import widget as widget_handler
     from api.trakt_login import catch_all as trakt_login_handler
     from api.trakt_callback import catch_all as trakt_callback_handler
 except ModuleNotFoundError:
     from view import catch_all as view_handler
+    from view import widget as widget_handler
     from trakt_login import catch_all as trakt_login_handler
     from trakt_callback import catch_all as trakt_callback_handler
 
@@ -56,6 +58,12 @@ def trakt_login(path):
 @app.route("/api/trakt_callback/<path:path>")
 def trakt_callback(path):
     return trakt_callback_handler(path)
+
+
+@app.route("/api/widget")
+def widget():
+    """HTML widget endpoint for embedding on websites"""
+    return widget_handler()
 
 
 if __name__ == "__main__":

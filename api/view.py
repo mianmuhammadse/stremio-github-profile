@@ -234,29 +234,40 @@ def get_trakt_media_info(uid, show_offline):
     Retrieve playback info for a Trakt-linked user stored in Firestore under `uid`.
     Returns item, is_now_playing, progress_ms, duration_ms
     """
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"get_trakt_media_info called with uid={uid}, show_offline={show_offline}")
+    
     # Load token from firebase
     doc_ref = db.collection("users").document(uid)
     doc = doc_ref.get()
 
     if not doc.exists:
+        logger.warning(f"No document found for uid: {uid}")
         return None, False, None, None
 
     token_info = doc.to_dict()
+    logger.info(f"Token info keys: {list(token_info.keys()) if token_info else 'None'}")
 
     current_ts = int(time())
     access_token = token_info.get("access_token")
+    logger.info(f"Access token exists: {access_token is not None}")
 
     # Refresh if expired
     expired_ts = token_info.get("expired_ts")
     if expired_ts is None or current_ts >= expired_ts:
+        logger.info(f"Token expired or no expiry. Current: {current_ts}, Expired: {expired_ts}")
         refresh_token = token_info.get("refresh_token")
         if not refresh_token:
+            logger.error("No refresh_token available")
             return None, False, None, None
 
+        logger.info("Attempting token refresh...")
         new_token = trakt.refresh_token(refresh_token)
 
         # If Trakt returns error, drop token
         if new_token.get("error"):
+            logger.error(f"Token refresh failed: {new_token.get('error')}")
             doc_ref.delete()
             return None, False, None, None
 
@@ -268,8 +279,10 @@ def get_trakt_media_info(uid, show_offline):
         }
         doc_ref.update(update_data)
         access_token = update_data["access_token"]
+        logger.info("Token refreshed successfully")
 
     # Query Trakt for current playback
+    logger.info("Querying Trakt for current playback...")
     data = trakt.get_current_playback(access_token)
 
     item = None
@@ -277,9 +290,13 @@ def get_trakt_media_info(uid, show_offline):
     progress_ms = None
     duration_ms = None
 
+    logger.info(f"Trakt data response: {data}")
+
     if data:
+        logger.info("Data found - user is currently watching")
         is_now_playing = True
         kind = data.get("type", "movie")
+        logger.info(f"Media type: {kind}")
 
         if kind == "episode":
             # Trakt episode structure: {show: {title}, episode: {title, season, number}}
@@ -360,11 +377,26 @@ def get_trakt_media_info(uid, show_offline):
         # Trakt doesn't provide progress/duration in watching endpoint
         progress_ms = None
         duration_ms = None
-    elif show_offline:
-        return None, False, None, None
     else:
-        return None, False, None, None
+        # No current playback data
+        logger.info("No current playback data found")
+        if show_offline:
+            logger.info("show_offline=True, returning offline indicator")
+            # Return a special "offline" item
+            item = {
+                "currently_playing_type": "offline",
+                "name": "Offline",
+                "artists": [{"name": "Currently not playing on Stremio"}],
+                "album": {"images": []},
+            }
+            is_now_playing = False
+            progress_ms = None
+            duration_ms = None
+        else:
+            logger.info("show_offline=False, returning None")
+            return None, False, None, None
 
+    logger.info(f"Returning - item: {item is not None}, is_now_playing: {is_now_playing}")
     return item, is_now_playing, progress_ms, duration_ms
 
 
@@ -475,12 +507,21 @@ def catch_all(path):
             recents = []
 
     try:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"Fetching Trakt media info for uid: {uid}, show_offline: {show_offline}")
+        
         item, is_now_playing, progress_ms, duration_ms = get_trakt_media_info(
             uid, show_offline
         )
-    except Exception:
+        
+        logger.info(f"Trakt result - item: {item is not None}, is_now_playing: {is_now_playing}")
+    except Exception as e:
+        import traceback
+        logger.error(f"Exception in get_trakt_media_info: {e}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
         return Response(
-            "Error: Invalid Trakt access_token or refresh_token. Possibly the token revoked. Please re-login at /api/login"
+            f"Error: Invalid Trakt access_token or refresh_token. {str(e)}. Please re-login at /api/login"
         )
 
     if (show_offline and not is_now_playing) or (item is None):
@@ -508,7 +549,11 @@ def catch_all(path):
             recents,
         )
         resp = Response(svg, mimetype="image/svg+xml")
-        resp.headers["Cache-Control"] = "s-maxage=1"
+        # Aggressive cache prevention for GitHub's Camo proxy
+        resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+        resp.headers["Pragma"] = "no-cache"
+        resp.headers["Expires"] = "0"
+        resp.headers["ETag"] = f'"{int(time())}"'
         return resp
 
     currently_playing_type = item.get("currently_playing_type", "track")
@@ -612,9 +657,124 @@ def catch_all(path):
     )
 
     resp = Response(svg, mimetype="image/svg+xml")
-    resp.headers["Cache-Control"] = "s-maxage=1"
+    # Aggressive cache prevention for GitHub's Camo proxy
+    resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+    resp.headers["Pragma"] = "no-cache"
+    resp.headers["Expires"] = "0"
+    # ETag based on current timestamp to force refresh
+    resp.headers["ETag"] = f'"{int(time())}"'
 
     print("cache size:", getsizeof(CACHE_TOKEN_INFO))
+
+    return resp
+
+
+@app.route("/widget")
+def widget():
+    """
+    HTML widget endpoint for embedding on websites via iframe.
+    Auto-refreshes every 30 seconds for real-time updates.
+    """
+    uid = request.args.get("uid")
+    cover_image = request.args.get("cover_image", default="true") == "true"
+    bar_color = request.args.get("bar_color", default="53b14f")
+    background_color = request.args.get("background_color", default="121212")
+    show_offline = request.args.get("show_offline", default="true") == "true"
+    mode = request.args.get("mode", default="dark")
+    refresh_interval = int(request.args.get("refresh", default="30"))
+    show_recents = request.args.get("show_recents", default="false") == "true"
+    recents_limit = int(request.args.get("recents_limit", default="3"))
+
+    # Clamp refresh interval between 10 and 300 seconds
+    refresh_interval = max(10, min(300, refresh_interval))
+
+    if not uid:
+        return Response("Missing uid parameter", status=400)
+
+    # Fetch recent watch history if enabled
+    recents = []
+    if show_recents:
+        try:
+            recents = get_watch_history(uid, limit=recents_limit)
+        except Exception:
+            recents = []
+
+    try:
+        item, is_now_playing, progress_ms, duration_ms = get_trakt_media_info(
+            uid, show_offline
+        )
+    except Exception as e:
+        return Response(f"Error fetching data: {str(e)}", status=500)
+
+    # Determine display content
+    if item is None or (not is_now_playing and not show_offline):
+        media_title = "Nothing Playing"
+        media_info = "Open Stremio to start watching"
+        status_text = "Offline"
+        img_b64 = ""
+        meta_info = ""
+    else:
+        currently_playing_type = item.get("currently_playing_type", "track")
+        
+        if currently_playing_type == "offline":
+            media_title = "Nothing Playing"
+            media_info = "Open Stremio to start watching"
+            status_text = "Offline"
+            img_b64 = ""
+            meta_info = ""
+        elif currently_playing_type == "episode":
+            media_title = item.get("name", "")
+            media_info = item.get("show", {}).get("publisher", "")
+            status_text = "Now Watching" if is_now_playing else "Recently Watched"
+            meta_info = "TV Show"
+            # Load poster
+            images = item.get("images", [])
+            if cover_image and len(images) > 0 and images[0].get("url"):
+                img_b64 = load_image_b64(images[0]["url"])
+            else:
+                img_b64 = ""
+        elif currently_playing_type == "movie":
+            media_title = item.get("name", "")
+            media_info = item.get("artists", [{}])[0].get("name", "Movie")
+            status_text = "Now Watching" if is_now_playing else "Recently Watched"
+            meta_info = "Movie"
+            # Load poster
+            images = item.get("album", {}).get("images", [])
+            if cover_image and len(images) > 0 and images[0].get("url"):
+                img_b64 = load_image_b64(images[0]["url"])
+            else:
+                img_b64 = ""
+        else:
+            media_title = item.get("name", "Unknown")
+            media_info = ""
+            status_text = "Now Playing" if is_now_playing else "Recently Played"
+            img_b64 = ""
+            meta_info = ""
+
+    # Sanitize for HTML
+    media_title = encode_html_entities(media_title)
+    media_info = encode_html_entities(media_info)
+
+    html_content = render_template(
+        "widget.html.j2",
+        media_title=media_title,
+        media_info=media_info,
+        status_text=status_text,
+        meta_info=meta_info,
+        img=img_b64,
+        cover_image=cover_image,
+        is_now_playing=is_now_playing,
+        bar_color=bar_color,
+        background_color=background_color,
+        mode=mode,
+        refresh_interval=refresh_interval,
+        recents=recents,
+    )
+
+    resp = Response(html_content, mimetype="text/html")
+    resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+    resp.headers["X-Frame-Options"] = "ALLOWALL"
+    resp.headers["Access-Control-Allow-Origin"] = "*"
 
     return resp
 
