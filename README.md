@@ -74,6 +74,52 @@ Show your watch history alongside the currently playing card:
 
 This displays up to 10 recently watched movies and TV episodes below your currently playing content.
 
+## HTML Widget (Real-time Updates!)
+
+For **real-time updates** on your personal website, blog, or GitHub Pages, use the HTML widget:
+
+```html
+<iframe 
+    src="https://stremio.mianmuhammad.dev/api/widget?uid=YOUR_TRAKT_USERNAME" 
+    width="450" 
+    height="180" 
+    frameborder="0"
+    style="border-radius: 12px;">
+</iframe>
+```
+
+The HTML widget **auto-refreshes every 30 seconds** for seamless real-time updates!
+
+### Widget Parameters
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `uid` | (required) | Your Trakt username |
+| `refresh` | `30` | Auto-refresh interval in seconds (10-300) |
+| `cover_image` | `true` | Display poster/cover image |
+| `background_color` | `121212` | Background color (hex, no #) |
+| `bar_color` | `53b14f` | Accent color (hex, no #) |
+| `mode` | `dark` | Color mode: `dark` or `light` |
+| `show_recents` | `false` | Show recently watched items |
+| `recents_limit` | `3` | Number of recent items (1-10) |
+
+### Widget Examples
+
+**Dark mode (default):**
+```html
+<iframe src="https://stremio.mianmuhammad.dev/api/widget?uid=YOUR_USERNAME" width="450" height="180" frameborder="0"></iframe>
+```
+
+**Light mode with recent history:**
+```html
+<iframe src="https://stremio.mianmuhammad.dev/api/widget?uid=YOUR_USERNAME&mode=light&show_recents=true" width="450" height="400" frameborder="0"></iframe>
+```
+
+**Faster refresh (10 seconds):**
+```html
+<iframe src="https://stremio.mianmuhammad.dev/api/widget?uid=YOUR_USERNAME&refresh=10" width="450" height="180" frameborder="0"></iframe>
+```
+
 ## Running Locally
 
 ### Prerequisites

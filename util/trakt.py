@@ -65,6 +65,9 @@ def get_current_playback(access_token):
     Attempt to fetch the user's currently watching item from Trakt.
     Returns a dict or empty dict when nothing is playing.
     """
+    import logging
+    logger = logging.getLogger(__name__)
+    
     headers = {
         "Authorization": f"Bearer {access_token}",
         "trakt-api-version": "2",
@@ -73,11 +76,22 @@ def get_current_playback(access_token):
 
     url = f"{TRAKT_API_BASE}/users/me/watching"
     try:
+        logger.info(f"Calling Trakt watching endpoint: {url}")
         resp = requests.get(url, headers=headers, timeout=10)
+        logger.info(f"Trakt watching response: {resp.status_code}")
+        
         if resp.status_code in (204, 404):
+            logger.info("User not currently watching anything (204/404)")
             return {}
-        return resp.json()
-    except Exception:
+        elif resp.status_code == 200:
+            data = resp.json()
+            logger.info(f"Trakt watching data: {data}")
+            return data
+        else:
+            logger.error(f"Unexpected status code: {resp.status_code}, body: {resp.text}")
+            return {}
+    except Exception as e:
+        logger.error(f"Exception in get_current_playback: {e}")
         return {}
 
 
