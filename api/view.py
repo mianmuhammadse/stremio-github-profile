@@ -7,7 +7,6 @@ from util.profanity import profanity_check
 
 load_dotenv(find_dotenv())
 
-from sys import getsizeof
 from PIL import Image, ImageFile
 
 from time import time
@@ -26,8 +25,6 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 print("Starting Server")
 
 db = get_firestore_db()
-CACHE_TOKEN_INFO = {}
-
 app = Flask(__name__)
 
 
@@ -549,11 +546,9 @@ def catch_all(path):
             recents,
         )
         resp = Response(svg, mimetype="image/svg+xml")
-        # Aggressive cache prevention for GitHub's Camo proxy
-        resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+        resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, s-maxage=1"
         resp.headers["Pragma"] = "no-cache"
         resp.headers["Expires"] = "0"
-        resp.headers["ETag"] = f'"{int(time())}"'
         return resp
 
     currently_playing_type = item.get("currently_playing_type", "track")
@@ -657,14 +652,9 @@ def catch_all(path):
     )
 
     resp = Response(svg, mimetype="image/svg+xml")
-    # Aggressive cache prevention for GitHub's Camo proxy
-    resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+    resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, s-maxage=1"
     resp.headers["Pragma"] = "no-cache"
     resp.headers["Expires"] = "0"
-    # ETag based on current timestamp to force refresh
-    resp.headers["ETag"] = f'"{int(time())}"'
-
-    print("cache size:", getsizeof(CACHE_TOKEN_INFO))
 
     return resp
 
